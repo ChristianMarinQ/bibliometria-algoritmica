@@ -1,10 +1,14 @@
 // Punto único de acceso a la API. Con VITE_USAR_MOCKS=true las funciones responden
 // con el motor local (src/api/mocks) y una latencia simulada; si no, llaman al backend.
 // `senal` (AbortSignal) permite cancelar la petición si la vista ya no la necesita.
-import { enviar, obtener, USAR_MOCKS } from "./cliente";
+import { eliminar, enviar, enviarFormulario, leerClave, obtener, USAR_MOCKS } from "./cliente";
 import type {
   Articulo,
   ArticuloDetalle,
+  ArticuloExtraido,
+  ArticuloGuardado,
+  ArticuloNuevo,
+  InfoSistema,
   ClaveSimilitud,
   PeticionBusqueda,
   PeticionTrazaBusqueda,
@@ -19,11 +23,12 @@ import type {
 } from "./tipos";
 
 export * from "./tipos";
-export { ErrorApi, URL_API, USAR_MOCKS } from "./cliente";
+export { ErrorApi, guardarClave, leerClave, URL_API, USAR_MOCKS } from "./cliente";
 
 // Carga perezosa: el motor de mocks no entra en el paquete principal si no se usa.
 const motor = () => import("./mocks/motor");
 const corpus = () => import("./mocks/corpus");
+const subida = () => import("./mocks/subida");
 
 async function simular<T>(fn: () => T | Promise<T>, latencia = 220): Promise<T> {
   await new Promise((r) => setTimeout(r, latencia));
@@ -80,5 +85,28 @@ export const api = {
   benchmark(repeticiones = 50, senal?: AbortSignal): Promise<RespuestaBenchmark> {
     if (USAR_MOCKS) return simular(async () => (await motor()).benchmark(repeticiones), 300);
     return obtener("/ranking/benchmark", { repeticiones }, senal);
+  },
+
+  // ---------- Corpus dinámico (subida de artículos) ----------
+  sistema(senal?: AbortSignal): Promise<InfoSistema> {
+    if (USAR_MOCKS) return simular(async () => (await subida()).sistema(), 120);
+    return obtener("/sistema", undefined, senal);
+  },
+
+  extraerArticulo(archivo: File, senal?: AbortSignal): Promise<ArticuloExtraido> {
+    if (USAR_MOCKS) return simular(async () => (await subida()).extraer(archivo, leerClave()), 900);
+    const formulario = new FormData();
+    formulario.append("archivo", archivo);
+    return enviarFormulario("/articulos/extraer", formulario, senal);
+  },
+
+  guardarArticulo(nuevo: ArticuloNuevo, senal?: AbortSignal): Promise<ArticuloGuardado> {
+    if (USAR_MOCKS) return simular(async () => (await subida()).guardar(nuevo, leerClave()), 2500);
+    return enviar("/articulos", nuevo, senal);
+  },
+
+  eliminarArticulo(id: number, senal?: AbortSignal): Promise<void> {
+    if (USAR_MOCKS) return simular(async () => (await subida()).borrar(id, leerClave()), 300);
+    return eliminar(`/articulos/${id}`, senal);
   },
 };

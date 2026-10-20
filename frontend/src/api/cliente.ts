@@ -48,9 +48,47 @@ export async function obtener<T>(ruta: string, parametros?: Parametros, senal?: 
 export async function enviar<T>(ruta: string, cuerpo: unknown, senal?: AbortSignal): Promise<T> {
   const respuesta = await fetch(construirUrl(ruta), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...cabeceraClave() },
     body: JSON.stringify(cuerpo),
     signal: senal,
   });
   return procesar<T>(respuesta);
+}
+
+// ---------- Subida de artículos: clave opcional y peticiones multipart / DELETE ----------
+const CLAVE_ALMACEN = "clave-subida";
+
+/** Clave de subida guardada en sessionStorage (puede no estar disponible: modo privado, etc.). */
+export function leerClave(): string {
+  try {
+    return sessionStorage.getItem(CLAVE_ALMACEN) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function guardarClave(clave: string): void {
+  try {
+    if (clave) sessionStorage.setItem(CLAVE_ALMACEN, clave);
+    else sessionStorage.removeItem(CLAVE_ALMACEN);
+  } catch {
+    /* sin almacenamiento: la clave solo vive en memoria del formulario */
+  }
+}
+
+function cabeceraClave(): Record<string, string> {
+  const clave = leerClave();
+  return clave ? { "X-Clave-Subida": clave } : {};
+}
+
+/** POST multipart: el navegador pone el Content-Type con el boundary, no se fija a mano. */
+export async function enviarFormulario<T>(ruta: string, formulario: FormData, senal?: AbortSignal): Promise<T> {
+  const respuesta = await fetch(construirUrl(ruta), { method: "POST", headers: cabeceraClave(), body: formulario, signal: senal });
+  return procesar<T>(respuesta);
+}
+
+/** DELETE que espera 204 sin cuerpo. */
+export async function eliminar(ruta: string, senal?: AbortSignal): Promise<void> {
+  const respuesta = await fetch(construirUrl(ruta), { method: "DELETE", headers: cabeceraClave(), signal: senal });
+  if (!respuesta.ok) await procesar(respuesta);
 }

@@ -6,6 +6,7 @@ import datos from "./corpus.json";
 // `palabras_abstract` se calcula igual que el backend: número de palabras separadas por espacios.
 export const ARTICULOS_MOCK: ArticuloDetalle[] = datos.map((a) => ({
   ...a,
+  origen: "base" as const,
   palabras_abstract: a.abstract.split(/\s+/).filter(Boolean).length,
 }));
 

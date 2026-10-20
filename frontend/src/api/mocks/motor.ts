@@ -41,7 +41,16 @@ export function preprocesar(texto: string): string[] {
 }
 
 const TOKENS = new Map<number, string[]>(ARTICULOS_MOCK.map((a) => [a.id, preprocesar(a.abstract)]));
-const tokens = (id: number) => TOKENS.get(id) ?? [];
+// Los artículos subidos en modo mocks se preprocesan la primera vez que se piden.
+const tokens = (id: number) => {
+  let t = TOKENS.get(id);
+  if (!t) {
+    const a = ARTICULOS_MOCK.find((x) => x.id === id);
+    t = a ? preprocesar(a.abstract) : [];
+    if (a) TOKENS.set(id, t);
+  }
+  return t;
+};
 const ref = (id: number): ArticuloRef => {
   const a = ARTICULOS_MOCK.find((x) => x.id === id);
   if (!a) throw new Error(`Artículo ${id} no encontrado`);

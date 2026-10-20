@@ -6,10 +6,49 @@ export interface Articulo {
   id: number;
   titulo: string;
   autores: string[];
-  anio: number;
+  anio: number | null;
   revista: string;
   archivo: string;
   palabras_abstract: number;
+  /** "base" para los 20 originales, "subido" para los agregados por el usuario. */
+  origen?: OrigenArticulo;
+}
+
+export type OrigenArticulo = "base" | "subido";
+
+// ---------- Sistema y subida de artículos ----------
+export interface InfoSistema {
+  subida_habilitada: boolean;
+  requiere_clave: boolean;
+  ia_en_servidor: boolean;
+  total_articulos: number;
+  articulos_base: number;
+  tamano_maximo_mb: number;
+}
+
+/** Resultado de POST /articulos/extraer: lo extraído del PDF, para revisar antes de guardar. */
+export interface ArticuloExtraido {
+  archivo: string;
+  titulo: string;
+  autores: string[];
+  anio: number | null;
+  revista: string;
+  abstract: string;
+  palabras_abstract: number;
+  advertencias: string[];
+}
+
+export interface ArticuloNuevo {
+  titulo: string;
+  autores: string[];
+  anio: number | null;
+  revista: string;
+  abstract: string;
+  archivo: string;
+}
+
+export interface ArticuloGuardado extends ArticuloDetalle {
+  embeddings?: { word2vec: boolean; sbert: boolean };
 }
 
 export interface ArticuloDetalle extends Articulo {
