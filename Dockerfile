@@ -13,8 +13,12 @@ RUN npm run build
 # --- Etapa 2: servidor FastAPI ---
 FROM python:3.10-slim
 WORKDIR /app
-COPY backend/requirements.txt backend/requirements.txt
+COPY backend/requirements.txt backend/requirements-ia.txt backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
+# CON_IA=true instala Word2Vec y SBERT para calcular embeddings de PDFs subidos
+# (se usa en Oracle Cloud; en Render se deja en false porque no hay memoria suficiente)
+ARG CON_IA=false
+RUN if [ "$CON_IA" = "true" ]; then       pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu &&       pip install --no-cache-dir -r backend/requirements-ia.txt;     fi
 COPY backend/ backend/
 COPY data/corpus.json data/embeddings.json data/
 COPY --from=frontend /app/frontend/dist frontend/dist

@@ -13,3 +13,5 @@ __pycache__/
 
 # PDFs originales del corpus (con derechos de autor; la app solo usa data/corpus.json)
 data/articulos/
+despliegue/oracle/.env
+data/subidos/

@@ -1,0 +1,5 @@
+# Caddy obtiene el certificado HTTPS automáticamente para el dominio.
+{$DOMINIO} {
+	encode gzip
+	reverse_proxy app:8000
+}

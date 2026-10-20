@@ -1,0 +1,41 @@
+# Despliegue en Oracle Cloud (VM ARM Always Free): aplicación + Caddy (HTTPS automático).
+# Uso (en la VM, dentro de la carpeta del repositorio):
+#   cp despliegue/oracle/.env.example despliegue/oracle/.env   # y editar los valores
+#   docker compose -f despliegue/oracle/docker-compose.yml up -d --build
+services:
+  app:
+    build:
+      context: ../..
+      args:
+        CON_IA: "true"
+    restart: unless-stopped
+    environment:
+      CARPETA_SUBIDOS: /datos/subidos
+      SUBIDA_HABILITADA: "true"
+      CLAVE_SUBIDA: ${CLAVE_SUBIDA:-}
+      IA_EN_SERVIDOR: "true"
+      # Los modelos de IA se descargan una sola vez dentro del volumen
+      GENSIM_DATA_DIR: /datos/modelos/gensim-data
+      HF_HOME: /datos/modelos/huggingface
+    volumes:
+      - datos:/datos
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_datos:/data
+    depends_on:
+      - app
+
+volumes:
+  datos:
+  caddy_datos:

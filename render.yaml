@@ -6,3 +6,7 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/salud
+    envVars:
+      # Render gratis no tiene disco persistente: el corpus queda en solo lectura
+      - key: SUBIDA_HABILITADA
+        value: "false"
