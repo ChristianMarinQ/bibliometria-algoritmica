@@ -169,6 +169,48 @@ empates por término alfabético ascendente (orden estable).
 `escalamiento` repite la medición duplicando la lista (×1, ×2, ×4, ×8) para
 mostrar el crecimiento lineal.
 
+## Subida de artículos (corpus dinámico)
+
+El corpus = 20 artículos **base** (`data/corpus.json`, solo lectura) + artículos **subidos**
+(guardados en `CARPETA_SUBIDOS`, por defecto `data/subidos/`, montada como volumen Docker).
+Los ids de subidos empiezan en 21. Todas las vistas usan el corpus combinado.
+
+### `GET /sistema`
+```json
+{"subida_habilitada": true, "requiere_clave": true, "ia_en_servidor": true,
+ "total_articulos": 21, "articulos_base": 20, "tamano_maximo_mb": 15}
+```
+`subida_habilitada=false` (p. ej. en Render) → el frontend oculta la subida.
+`ia_en_servidor=false` → los artículos subidos no tienen vectores IA (se avisa).
+
+### `POST /articulos/extraer` (multipart, campo `archivo`: PDF)
+Extrae sin guardar, para que el usuario revise:
+```json
+{"archivo": "mi-articulo.pdf", "titulo": "…", "autores": ["…"], "anio": 2024,
+ "revista": "…", "abstract": "…", "palabras_abstract": 180, "advertencias": ["No se encontró el año"]}
+```
+Errores: 400 no es PDF / PDF ilegible / sin texto; 413 > tamaño máximo; 403 subida deshabilitada o clave inválida.
+
+### `POST /articulos`
+Entrada: `{"titulo", "autores": [str], "anio": int|null, "revista", "abstract", "archivo"}`
+(lo revisado/corregido por el usuario). Respuesta 201: el artículo completo con
+`"id"` asignado y `"origen": "subido"`, más `"embeddings": {"word2vec": bool, "sbert": bool}`.
+Validación 422: título vacío, abstract con menos de 30 palabras o más de 1000.
+409 si ya existe un artículo con el mismo título (comparación sin mayúsculas ni espacios extra).
+
+### `DELETE /articulos/{id}`
+Solo artículos subidos (403 para los 20 base). 204 sin cuerpo.
+
+### Autorización
+Si la variable de entorno `CLAVE_SUBIDA` está definida, `POST /articulos/extraer`,
+`POST /articulos` y `DELETE /articulos/{id}` exigen la cabecera `X-Clave-Subida`
+con ese valor (403 si falta o no coincide).
+
+### Cambios en respuestas existentes
+- `GET /articulos` y `GET /articulos/{id}` agregan `"origen": "base" | "subido"`.
+- Similitud/clustering con artículos sin vectores IA: los algoritmos IA se omiten con
+  un aviso en `avisos` (similitud) o 503 claro (clustering `representacion=sbert`).
+
 ## Campos adicionales (opcionales)
 
 El backend agrega estos campos, que el cliente puede ignorar:
