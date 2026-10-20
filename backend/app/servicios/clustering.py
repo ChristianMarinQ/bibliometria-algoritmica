@@ -8,6 +8,7 @@ from app import config
 from app.algoritmos.clustering.jerarquico import METODOS, agrupar, construir_arbol
 from app.algoritmos.clustering.metricas import correlacion_cofenetica, cortar_arbol, silhouette
 from app.algoritmos.similitud.embeddings import coseno
+from app.nucleo import almacen_subidos
 from app.nucleo.corpus import cargar_corpus
 from app.nucleo.medicion import medir
 from app.nucleo.preprocesamiento import preprocesar
@@ -47,17 +48,22 @@ def distancias_tfidf(articulos):
 
 
 def distancias_sbert(articulos):
-    """Lee los embeddings SBERT precalculados y devuelve 1 − coseno."""
+    """Lee los embeddings SBERT precalculados (base + subidos) y devuelve 1 − coseno."""
     if not config.RUTA_EMBEDDINGS.exists():
         raise DatosNoDisponibles(
             "No existe data/embeddings.json; ejecute el script de generación de embeddings.")
     with open(config.RUTA_EMBEDDINGS, encoding="utf-8") as archivo:
         datos = json.load(archivo)
+    datos = almacen_subidos.combinar_embeddings(datos, almacen_subidos.leer_embeddings())
     vectores_por_id = datos.get("sbert", {}).get("vectores", {})
     vectores = []
     for articulo in articulos:
         vector = vectores_por_id.get(str(articulo["id"]))
         if vector is None:
+            if articulo.get("origen") == "subido":
+                raise DatosNoDisponibles(
+                    f"El artículo subido {articulo['id']} no tiene vector SBERT (la IA no estaba activa "
+                    "en el servidor al subirlo); use la representación TF-IDF o bórrelo.")
             raise DatosNoDisponibles(
                 f"embeddings.json no tiene vector SBERT para el artículo {articulo['id']}.")
         vectores.append(vector)

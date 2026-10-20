@@ -1,7 +1,8 @@
 """Servicio del Req. 1: matrices de similitud entre N artículos y trazas paso a paso.
 
 Une el corpus, el preprocesamiento compartido, los algoritmos de similitud y la
-medición de tiempos. Los embeddings de IA se leen de data/embeddings.json.
+medición de tiempos. Los embeddings de IA se leen de data/embeddings.json más
+los de los artículos subidos (data/subidos/embeddings.json).
 """
 
 import json
@@ -9,6 +10,7 @@ import os
 
 from app.algoritmos.similitud import coseno_tfidf, embeddings, jaccard, levenshtein, needleman_wunsch
 from app.config import RUTA_EMBEDDINGS
+from app.nucleo import almacen_subidos
 from app.nucleo.corpus import cargar_corpus, obtener_articulos
 from app.nucleo.medicion import medir
 from app.nucleo.preprocesamiento import preprocesar
@@ -37,21 +39,25 @@ class EmbeddingsNoDisponibles(Exception):
     """Se lanza cuando se pide un algoritmo de IA y no hay vectores precalculados."""
 
 
-# Caché de embeddings: se invalida si el archivo cambia (fecha de modificación).
-_cache_embeddings = {"mtime": None, "datos": None}
+# Caché de embeddings combinados: se invalida si cambia el archivo base, el de
+# subidos (fecha de modificación) o la versión de los datos subidos.
+_cache_embeddings = {"clave": None, "datos": None}
 _cache_tokens = {}
 _cache_idf = {}
 
 
 def cargar_embeddings():
-    """Lee data/embeddings.json (con caché por fecha de modificación). Devuelve None si no existe."""
+    """Lee data/embeddings.json y le une los de subidos (con caché). Devuelve None si no existe el base."""
     if not os.path.exists(RUTA_EMBEDDINGS):
         return None
-    mtime = os.path.getmtime(RUTA_EMBEDDINGS)
-    if _cache_embeddings["mtime"] != mtime:
+    clave = (str(RUTA_EMBEDDINGS), os.path.getmtime(RUTA_EMBEDDINGS),
+             str(almacen_subidos.ruta_embeddings()),
+             almacen_subidos.marca_archivo(almacen_subidos.ruta_embeddings()), almacen_subidos.version())
+    if _cache_embeddings["clave"] != clave:
         with open(RUTA_EMBEDDINGS, encoding="utf-8") as archivo:
-            _cache_embeddings["datos"] = json.load(archivo)
-        _cache_embeddings["mtime"] = mtime
+            base = json.load(archivo)
+        _cache_embeddings["datos"] = almacen_subidos.combinar_embeddings(base, almacen_subidos.leer_embeddings())
+        _cache_embeddings["clave"] = clave
     return _cache_embeddings["datos"]
 
 
@@ -66,7 +72,8 @@ def tokens_articulo(articulo):
 def idf_corpus():
     """IDF calculado sobre todos los abstracts del corpus, para que los pesos sean estables."""
     corpus = cargar_corpus()
-    clave = id(corpus)
+    # La clave depende del contenido, así un artículo subido o borrado recalcula el IDF.
+    clave = tuple((a["id"], a["abstract"]) for a in corpus)
     if clave not in _cache_idf:
         _cache_idf.clear()
         _cache_idf[clave] = frecuencia_inversa([tokens_articulo(a) for a in corpus])
@@ -86,7 +93,8 @@ def vector_articulo(modelo, id_articulo):
     vector = modelo["vectores"].get(str(id_articulo))
     if vector is None:
         raise EmbeddingsNoDisponibles(
-            f"El artículo {id_articulo} no tiene embedding; vuelva a ejecutar scripts/generar_embeddings.py"
+            f"El artículo {id_articulo} no tiene embedding (si es subido, la IA no estaba activa en el "
+            "servidor; si es base, vuelva a ejecutar scripts/generar_embeddings.py)"
         )
     return vector
 

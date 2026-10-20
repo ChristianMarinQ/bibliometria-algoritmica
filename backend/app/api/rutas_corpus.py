@@ -20,6 +20,7 @@ def resumir_articulo(articulo):
         "archivo": articulo["archivo"],
         # Palabras separadas por espacios, según el contrato de la API.
         "palabras_abstract": len(articulo["abstract"].split()),
+        "origen": articulo.get("origen", "base"),
     }
 
 

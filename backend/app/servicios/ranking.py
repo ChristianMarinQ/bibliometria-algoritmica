@@ -1,6 +1,6 @@
 """Servicio del seguimiento: ranking de términos más frecuentes del corpus.
 
-Calcula las frecuencias de los 20 abstracts, las ordena con Counting, Radix y
+Calcula las frecuencias de los abstracts del corpus, las ordena con Counting, Radix y
 Bucket Sort, mide tiempos y arma el benchmark de escalamiento.
 """
 
