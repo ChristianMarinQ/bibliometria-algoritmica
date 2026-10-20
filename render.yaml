@@ -1,0 +1,8 @@
+# Blueprint de Render: un solo servicio web gratuito construido con el Dockerfile.
+services:
+  - type: web
+    name: bibliometria-algoritmica
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/salud
