@@ -246,7 +246,11 @@ def test_versiones_rapidas_coinciden_con_la_matriz():
 
 
 def test_servidor_no_depende_de_librerias_de_ia():
-    """Ningún módulo de app/ importa gensim, sentence_transformers, torch ni numpy."""
+    """Ningún módulo de app/ importa gensim, sentence_transformers, torch ni numpy al cargarse.
+
+    Única excepción: app/nucleo/modelos_ia.py puede importarlas dentro de funciones
+    (carga perezosa de los modelos para los artículos subidos).
+    """
     import ast
     from pathlib import Path
 
@@ -254,7 +258,12 @@ def test_servidor_no_depende_de_librerias_de_ia():
     carpeta_app = Path(__file__).resolve().parent.parent / "app"
     for ruta in carpeta_app.rglob("*.py"):
         arbol = ast.parse(ruta.read_text(encoding="utf-8"))
-        for nodo in ast.walk(arbol):
+        if ruta.name == "modelos_ia.py":
+            # Solo se revisan las sentencias del nivel del módulo.
+            nodos = [n for n in arbol.body if isinstance(n, (ast.Import, ast.ImportFrom))]
+        else:
+            nodos = list(ast.walk(arbol))
+        for nodo in nodos:
             if isinstance(nodo, ast.Import):
                 modulos = [alias.name for alias in nodo.names]
             elif isinstance(nodo, ast.ImportFrom):
@@ -263,3 +272,16 @@ def test_servidor_no_depende_de_librerias_de_ia():
                 continue
             for modulo in modulos:
                 assert modulo.split(".")[0] not in prohibidos, f"{ruta.name} importa {modulo}"
+
+
+def test_arranque_no_importa_librerias_de_ia():
+    """Importar app.main en un proceso nuevo no carga gensim ni sentence_transformers."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    codigo = ("import sys, app.main; "
+              "print(any(m.split('.')[0] in ('gensim', 'sentence_transformers', 'torch') for m in sys.modules))")
+    salida = subprocess.run([sys.executable, "-c", codigo], capture_output=True, text=True,
+                            cwd=Path(__file__).resolve().parent.parent, check=True)
+    assert salida.stdout.strip() == "False"

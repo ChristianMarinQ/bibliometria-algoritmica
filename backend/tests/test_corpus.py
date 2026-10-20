@@ -57,7 +57,8 @@ def test_endpoint_lista_articulos():
     assert respuesta.status_code == 200
     datos = respuesta.json()
     assert len(datos) == 20
-    assert set(datos[0]) == {"id", "titulo", "autores", "anio", "revista", "archivo", "palabras_abstract"}
+    assert set(datos[0]) == {"id", "titulo", "autores", "anio", "revista", "archivo", "palabras_abstract", "origen"}
+    assert all(articulo["origen"] == "base" for articulo in datos)
     assert all(articulo["palabras_abstract"] > 0 for articulo in datos)
 
 
