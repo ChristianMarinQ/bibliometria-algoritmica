@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from app.api import rutas_busqueda, rutas_clustering, rutas_corpus, rutas_ranking, rutas_similitud
+from app.api import rutas_busqueda, rutas_clustering, rutas_corpus, rutas_ranking, rutas_similitud, rutas_subida
 from app.config import CARPETA_FRONTEND, ORIGENES_CORS
 
 app = FastAPI(
@@ -30,6 +30,8 @@ app.include_router(rutas_similitud.router, prefix="/api", tags=["Req. 1 - Simili
 app.include_router(rutas_clustering.router, prefix="/api", tags=["Req. 2 - Clustering"])
 app.include_router(rutas_busqueda.router, prefix="/api", tags=["Req. 3 - Búsqueda"])
 app.include_router(rutas_ranking.router, prefix="/api", tags=["Seguimiento - Ranking"])
+# Subida de artículos: debe registrarse antes de la ruta comodín del frontend.
+app.include_router(rutas_subida.router, prefix="/api", tags=["Subida de artículos"])
 
 
 @app.get("/api/salud", tags=["Sistema"])

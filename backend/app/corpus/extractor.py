@@ -203,12 +203,12 @@ def anio_de_metadatos(metadatos):
     return int(coincidencia.group(1)) if coincidencia else None
 
 
-def extraer_abstract(texto, id_articulo):
+def extraer_abstract(texto, id_articulo, usar_marcadores=True):
     """Recorta el abstract entre los marcadores generales o los del artículo.
 
     Devuelve el texto crudo (sin limpiar) o "" si no encuentra el inicio.
     """
-    marcadores = MARCADORES_ARTICULO.get(id_articulo, {})
+    marcadores = MARCADORES_ARTICULO.get(id_articulo, {}) if usar_marcadores else {}
     inicio = PATRON_INICIO.search(texto)
     if not inicio:
         return ""
@@ -223,8 +223,11 @@ def extraer_abstract(texto, id_articulo):
     return texto[posicion:fin]
 
 
-def extraer_articulo(ruta_pdf, id_articulo):
-    """Procesa un PDF y devuelve el diccionario del artículo según el esquema del corpus."""
+def extraer_articulo(ruta_pdf, id_articulo, usar_marcadores=True):
+    """Procesa un PDF y devuelve el diccionario del artículo según el esquema del corpus.
+
+    `usar_marcadores=False` ignora los ajustes por id de marcadores.py (PDFs subidos).
+    """
     documento = pymupdf.open(ruta_pdf)
     try:
         pagina = documento[0]
@@ -237,7 +240,7 @@ def extraer_articulo(ruta_pdf, id_articulo):
         titulo, lineas_titulo = extraer_titulo(lineas)
         autores = extraer_autores(lineas, lineas_titulo) if lineas_titulo else []
         revista, anio = detectar_revista(texto_pag1, documento.metadata)
-        crudo = extraer_abstract(texto, id_articulo)
+        crudo = extraer_abstract(texto, id_articulo, usar_marcadores)
     finally:
         documento.close()
 
@@ -251,5 +254,73 @@ def extraer_articulo(ruta_pdf, id_articulo):
         "abstract": limpiar_abstract(crudo, texto_documento),
     }
     # Correcciones manuales documentadas en marcadores.py (si las hubiera).
-    articulo.update(CORRECCIONES.get(id_articulo, {}))
+    if usar_marcadores:
+        articulo.update(CORRECCIONES.get(id_articulo, {}))
+    return articulo
+
+
+# ---------- Heurísticas genéricas para PDFs de revistas desconocidas ----------
+
+PATRON_ANIO = re.compile(r"(19[5-9]\d|20\d\d)")
+MINIMO_PALABRAS_BLOQUE = 60
+
+
+def abstract_por_bloques(ruta_pdf):
+    """Primer bloque de texto largo de las dos primeras páginas (sin rótulo "Abstract").
+
+    Devuelve el texto crudo o "" si ningún bloque tiene suficientes palabras.
+    """
+    documento = pymupdf.open(ruta_pdf)
+    try:
+        for numero in range(min(2, len(documento))):
+            for bloque in documento[numero].get_text("blocks"):
+                texto = bloque[4]
+                if len(texto.split()) >= MINIMO_PALABRAS_BLOQUE:
+                    return texto
+    finally:
+        documento.close()
+    return ""
+
+
+def metadatos_pdf(ruta_pdf):
+    """Metadatos del PDF (title, author, creationDate...) como diccionario."""
+    documento = pymupdf.open(ruta_pdf)
+    try:
+        return dict(documento.metadata or {})
+    finally:
+        documento.close()
+
+
+def texto_primera_pagina(ruta_pdf):
+    """Texto plano normalizado de la primera página."""
+    documento = pymupdf.open(ruta_pdf)
+    try:
+        return normalizar_caracteres(documento[0].get_text()) if len(documento) else ""
+    finally:
+        documento.close()
+
+
+def extraer_articulo_generico(ruta_pdf):
+    """Extrae un PDF cualquiera (sin marcadores por id) completando lo que falte con heurísticas.
+
+    Si no hay rótulo "Abstract" usa el primer bloque largo; si falta el título o los
+    autores usa los metadatos del PDF; si falta el año busca uno en la página 1.
+    Devuelve el diccionario del artículo (sin id).
+    """
+    articulo = extraer_articulo(ruta_pdf, 0, usar_marcadores=False)
+    articulo.pop("id")
+    metadatos = metadatos_pdf(ruta_pdf)
+    if not articulo["abstract"]:
+        crudo = abstract_por_bloques(ruta_pdf)
+        if crudo:
+            articulo["abstract"] = limpiar_abstract(crudo, crudo)
+    if not articulo["titulo"] and (metadatos.get("title") or "").strip():
+        articulo["titulo"] = re.sub(r"\s+", " ", metadatos["title"]).strip()
+    if not articulo["autores"] and (metadatos.get("author") or "").strip():
+        partes = re.split(r"[,;]| and ", metadatos["author"])
+        articulo["autores"] = [p.strip() for p in partes if len(p.strip()) > 1]
+    if articulo["anio"] is None:
+        coincidencia = PATRON_ANIO.search(texto_primera_pagina(ruta_pdf))
+        if coincidencia:
+            articulo["anio"] = int(coincidencia.group(1))
     return articulo
