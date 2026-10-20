@@ -1,6 +1,6 @@
 // Botón base: escala 0.97 al presionar (spring corto), variantes y tamaño.
 import { motion, type HTMLMotionProps } from "motion/react";
-import type { ReactNode } from "react";
+import { forwardRef, type ReactNode } from "react";
 
 interface Props extends HTMLMotionProps<"button"> {
   variante?: "primario" | "secundario" | "fantasma";
@@ -9,9 +9,14 @@ interface Props extends HTMLMotionProps<"button"> {
   children?: ReactNode;
 }
 
-export function Boton({ variante = "secundario", tamano = "normal", icono, children, className = "", ...resto }: Props) {
+// forwardRef: permite devolver el foco al botón (p. ej. al cerrar un diálogo).
+export const Boton = forwardRef<HTMLButtonElement, Props>(function Boton(
+  { variante = "secundario", tamano = "normal", icono, children, className = "", ...resto },
+  ref,
+) {
   return (
     <motion.button
+      ref={ref}
       type="button"
       whileTap={resto.disabled ? undefined : { scale: 0.97 }}
       transition={{ type: "spring", stiffness: 600, damping: 35 }}
@@ -22,4 +27,4 @@ export function Boton({ variante = "secundario", tamano = "normal", icono, child
       {children && <span>{children}</span>}
     </motion.button>
   );
-}
+});

@@ -1,20 +1,64 @@
-// Vista Corpus: índice de los 20 artículos; al abrir uno se muestra su abstract en una hoja lateral.
+// Vista Corpus: índice de los artículos; al abrir uno se muestra su abstract en una hoja lateral.
+// Si el backend lo permite (GET /sistema), se pueden agregar artículos desde un PDF y eliminar los subidos.
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { api, type Articulo } from "../api";
+import { api, type Articulo, type ArticuloGuardado } from "../api";
 import { Boton } from "../componentes/ui/Boton";
 import { Dato, entero } from "../componentes/ui/Dato";
 import { EncabezadoVista } from "../componentes/ui/EncabezadoVista";
 import { Cargando, MensajeError, Vacio } from "../componentes/ui/Estado";
-import { Search, X } from "../componentes/ui/Icono";
+import { Plus, Search, Trash2, X } from "../componentes/ui/Icono";
 import { Segmentado } from "../componentes/ui/Selector";
+import { avisarCorpusCambiado, useVersionCorpus } from "../hooks/useCorpus";
 import { usePeticion } from "../hooks/usePeticion";
+import { mensajeSubida } from "./mensajesSubida";
+import { DialogoSubida } from "./SubidaArticulo";
 
 type Orden = "id" | "anio";
 
 export function VistaCorpus() {
-  const { datos, cargando, error, recargar } = usePeticion((senal) => api.articulos(senal), []);
+  const versionCorpus = useVersionCorpus();
+  const { datos, cargando, error, recargar } = usePeticion((senal) => api.articulos(senal), [versionCorpus]);
+  // Si /sistema falla (backend sin esta ruta) simplemente no se ofrece la subida.
+  const sistema = usePeticion((senal) => api.sistema(senal).catch(() => null), [versionCorpus]);
+  const subida = sistema.datos?.subida_habilitada ? sistema.datos : null;
+  const [dialogo, setDialogo] = useState(false);
+  const [resaltado, setResaltado] = useState<number | null>(null);
+  const [confirmando, setConfirmando] = useState<number | null>(null);
+  const [eliminando, setEliminando] = useState<number | null>(null);
+  const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
+  const botonAgregar = useRef<HTMLButtonElement>(null);
+
+  const alGuardar = (a: ArticuloGuardado) => {
+    setDialogo(false);
+    setFiltro("");
+    setResaltado(a.id);
+    avisarCorpusCambiado();
+  };
+
+  const eliminar = async (id: number) => {
+    setEliminando(id);
+    setErrorEliminar(null);
+    try {
+      await api.eliminarArticulo(id);
+      setConfirmando(null);
+      avisarCorpusCambiado();
+    } catch (e) {
+      setErrorEliminar(mensajeSubida(e));
+    } finally {
+      setEliminando(null);
+    }
+  };
+
+  // Llevar a la vista el artículo recién agregado cuando aparezca en la lista.
+  useEffect(() => {
+    if (resaltado === null || !datos?.some((a) => a.id === resaltado)) return;
+    const fila = document.getElementById(`articulo-${resaltado}`);
+    const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    fila?.scrollIntoView({ block: "center", behavior: reducido ? "auto" : "smooth" });
+    fila?.querySelector<HTMLElement>(".indice__fila")?.focus({ preventScroll: true });
+  }, [resaltado, datos]);
   const [filtro, setFiltro] = useState("");
   const [orden, setOrden] = useState<Orden>("id");
   const [abierto, setAbierto] = useState<Articulo | null>(null);
@@ -30,15 +74,15 @@ export function VistaCorpus() {
     const filtrados = (datos ?? []).filter(
       (a) => !f || a.titulo.toLowerCase().includes(f) || a.autores.join(" ").toLowerCase().includes(f) || a.revista.toLowerCase().includes(f),
     );
-    return [...filtrados].sort((a, b) => (orden === "id" ? a.id - b.id : b.anio - a.anio || a.id - b.id));
+    return [...filtrados].sort((a, b) => (orden === "id" ? a.id - b.id : (b.anio ?? 0) - (a.anio ?? 0) || a.id - b.id));
   }, [datos, filtro, orden]);
 
-  const anios = datos?.map((a) => a.anio) ?? [];
+  const anios = datos?.flatMap((a) => (a.anio ? [a.anio] : [])) ?? [];
   const palabras = datos?.reduce((s, a) => s + a.palabras_abstract, 0) ?? 0;
 
   return (
     <div className="vista">
-      <EncabezadoVista antetitulo="Corpus" titulo="Veinte artículos sobre IA en educación">
+      <EncabezadoVista antetitulo="Corpus" titulo={!datos || datos.length === 20 ? "Veinte artículos sobre IA en educación" : `${datos.length} artículos sobre IA en educación`}>
         <p>
           Los abstracts de estos artículos son la materia prima de todos los requerimientos: se comparan por similitud, se agrupan
           jerárquicamente, se recorren buscando patrones y se usan para el ranking de términos.
@@ -69,7 +113,13 @@ export function VistaCorpus() {
             { valor: "anio", etiqueta: "Año" },
           ]}
         />
+        {subida && (
+          <Boton ref={botonAgregar} variante="primario" icono={<Plus size={16} />} onClick={() => setDialogo(true)}>
+            Agregar artículo
+          </Boton>
+        )}
       </div>
+      {errorEliminar && <MensajeError mensaje={errorEliminar} />}
 
       {error && <MensajeError mensaje={error} reintentar={recargar} />}
       {cargando && !datos && <Cargando lineas={8} />}
@@ -79,6 +129,8 @@ export function VistaCorpus() {
         {lista.map((a, k) => (
           <motion.li
             key={a.id}
+            id={`articulo-${a.id}`}
+            className={`${a.origen === "subido" ? "es-subido" : ""} ${a.id === resaltado ? "es-nuevo" : ""}`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1], delay: Math.min(k * 0.02, 0.24) }}
@@ -89,18 +141,58 @@ export function VistaCorpus() {
               }}>
               <span className="indice__numero">{String(a.id).padStart(2, "0")}</span>
               <span className="indice__cuerpo">
-                <span className="indice__titulo">{a.titulo}</span>
+                <span className="indice__titulo">
+                  {a.titulo}
+                  {a.origen === "subido" && <span className="insignia insignia--acento indice__insignia">Subido</span>}
+                </span>
                 <span className="indice__meta">
-                  {a.autores.join(", ")} · <em>{a.revista}</em>
+                  {a.autores.join(", ") || "Autores sin registrar"} · <em>{a.revista || "Revista sin registrar"}</em>
                 </span>
               </span>
-              <span className="indice__anio">{a.anio}</span>
+              <span className="indice__anio">{a.anio ?? "—"}</span>
             </button>
+            {subida && a.origen === "subido" && (
+              <div className={`indice__acciones ${confirmando === a.id ? "indice__acciones--confirmar" : ""}`}>
+                {confirmando === a.id ? (
+                  <div className="indice__confirmar" role="group" aria-label={`Confirmar eliminación del artículo ${a.id}`}>
+                    <span>¿Eliminar del corpus?</span>
+                    <Boton tamano="pequeno" variante="primario" onClick={() => eliminar(a.id)} disabled={eliminando === a.id} autoFocus>
+                      {eliminando === a.id ? "Eliminando…" : "Eliminar"}
+                    </Boton>
+                    <Boton tamano="pequeno" variante="fantasma" onClick={() => setConfirmando(null)} disabled={eliminando === a.id}>
+                      Cancelar
+                    </Boton>
+                  </div>
+                ) : (
+                  <Boton
+                    tamano="pequeno"
+                    variante="fantasma"
+                    icono={<Trash2 size={14} />}
+                    aria-label={`Eliminar el artículo ${a.id}: ${a.titulo}`}
+                    onClick={() => {
+                      setErrorEliminar(null);
+                      setConfirmando(a.id);
+                    }}
+                  />
+                )}
+              </div>
+            )}
           </motion.li>
         ))}
       </ol>
 
       <HojaArticulo articulo={abierto} onCerrar={cerrar} />
+      {subida && (
+        <DialogoSubida
+          abierto={dialogo}
+          sistema={subida}
+          onGuardado={alGuardar}
+          onCerrar={() => {
+            setDialogo(false);
+            botonAgregar.current?.focus();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -155,7 +247,8 @@ function HojaArticulo({ articulo, onCerrar }: { articulo: Articulo | null; onCer
               <div>
                 <dt>Revista</dt>
                 <dd>
-                  <em>{articulo.revista}</em>, {articulo.anio}
+                  <em>{articulo.revista || "Sin revista"}</em>
+                  {articulo.anio ? `, ${articulo.anio}` : ""}
                 </dd>
               </div>
               <div>

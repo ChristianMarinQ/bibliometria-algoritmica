@@ -7,11 +7,14 @@ export {
   ChevronLeft,
   ChevronRight,
   CircleAlert,
+  FileUp,
   Info,
+  Plus,
   RotateCcw,
   Search,
   SkipBack,
   SkipForward,
+  Trash2,
   X,
 } from "lucide-react";
 

@@ -45,6 +45,11 @@ comando si se regenera el corpus. Lo que sí es simulado son los **cálculos** (
 clustering, búsqueda, ordenamiento): se reimplementan en TypeScript de forma simplificada solo para
 desarrollar la interfaz sin backend. Los resultados oficiales son los de la API en Python.
 
+La **subida de artículos** (botón «Agregar artículo» en Corpus) también funciona en modo mocks:
+no se lee el PDF (se genera un borrador a partir del nombre del archivo), los artículos se guardan
+en memoria hasta recargar la página y la clave de subida aceptada es `demo`. Con el backend real,
+el botón solo aparece si `GET /sistema` devuelve `subida_habilitada: true`.
+
 ## Despliegue
 
 1. Defina la URL pública de la API **antes** de compilar (Vite la incrusta en el paquete):

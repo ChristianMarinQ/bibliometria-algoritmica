@@ -12,6 +12,7 @@ import { Lista, Segmentado } from "../componentes/ui/Selector";
 import { Tabla } from "../componentes/ui/Tabla";
 import { Tarjeta } from "../componentes/ui/Tarjeta";
 import { useEjecucion, usePeticion } from "../hooks/usePeticion";
+import { useVersionCorpus } from "../hooks/useCorpus";
 import { VisualizadorTraza } from "./VisualizadorTraza";
 
 export function VistaBusqueda() {
@@ -130,7 +131,7 @@ export function VistaBusqueda() {
 
           <Tarjeta
             titulo="Coincidencias en contexto"
-            descripcion={`${totalCoincidencias} apariciones en ${resultado.resultados.length} de 20 artículos.`}
+            descripcion={`${totalCoincidencias} apariciones en ${resultado.resultados.length} artículos del corpus.`}
           >
             {resultado.resultados.length === 0 && <Vacio>El patrón no aparece en ningún abstract.</Vacio>}
             <ul className="resultados">
@@ -180,7 +181,8 @@ interface PropsPanelTraza {
 }
 
 function PanelTraza({ patron, distinguirMayusculas, idsConCoincidencia }: PropsPanelTraza) {
-  const corpus = usePeticion((senal) => api.articulos(senal), []);
+  const versionCorpus = useVersionCorpus();
+  const corpus = usePeticion((senal) => api.articulos(senal), [versionCorpus]);
   const [algoritmo, setAlgoritmo] = useState<ClaveBusqueda>("boyer_moore");
   // Por defecto, el primer artículo que contiene el patrón (o el 3, buen ejemplo para "learning").
   const [articulo, setArticulo] = useState<number>(idsConCoincidencia.includes(3) ? 3 : idsConCoincidencia[0] ?? 1);

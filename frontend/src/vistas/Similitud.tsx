@@ -14,6 +14,7 @@ import { Chips, type Opcion } from "../componentes/ui/Selector";
 import { Tabla, type Columna } from "../componentes/ui/Tabla";
 import { Tarjeta } from "../componentes/ui/Tarjeta";
 import { useEjecucion, usePeticion } from "../hooks/usePeticion";
+import { useVersionCorpus } from "../hooks/useCorpus";
 import { PasoSimilitud } from "./PasoSimilitud";
 
 const CLASICOS: Opcion<ClaveSimilitud>[] = [
@@ -30,7 +31,8 @@ const IA: Opcion<ClaveSimilitud>[] = [
 const ORDEN = [...CLASICOS, ...IA].map((o) => o.valor);
 
 export function VistaSimilitud() {
-  const corpus = usePeticion((senal) => api.articulos(senal), []);
+  const versionCorpus = useVersionCorpus();
+  const corpus = usePeticion((senal) => api.articulos(senal), [versionCorpus]);
   const [ids, setIds] = useState<number[]>([1, 2, 7, 11, 15]);
   const [algoritmos, setAlgoritmos] = useState<ClaveSimilitud[]>(["levenshtein", "coseno_tfidf", "jaccard", "sbert"]);
   const { datos: resultado, cargando, error, ejecutar, enCurso } = useEjecucion<RespuestaSimilitud>();

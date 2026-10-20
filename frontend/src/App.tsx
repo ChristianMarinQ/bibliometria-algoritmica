@@ -14,7 +14,7 @@ import { VistaRanking } from "./vistas/Ranking";
 import { VistaSimilitud } from "./vistas/Similitud";
 
 const SECCIONES = [
-  { ruta: "/corpus", marca: "00", nombre: "Corpus", detalle: "20 artículos" },
+  { ruta: "/corpus", marca: "00", nombre: "Corpus", detalle: "Artículos y abstracts" },
   { ruta: "/similitud", marca: "R1", nombre: "Similitud textual", detalle: "Clásicos e IA" },
   { ruta: "/clustering", marca: "R2", nombre: "Clustering jerárquico", detalle: "Dendrogramas" },
   { ruta: "/busqueda", marca: "R3", nombre: "Búsqueda de patrones", detalle: "KMP · BM · RK" },
