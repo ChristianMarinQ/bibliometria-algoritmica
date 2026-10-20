@@ -1,0 +1,305 @@
+/* Estilos base y estructura general (lateral + contenido). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fuente-texto);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+code,
+.mono {
+  font-family: var(--fuente-mono);
+  font-size: 0.92em;
+  font-variant-ligatures: none;
+}
+
+/* Números tabulares en todo lo que muestra datos */
+table,
+.dato__valor,
+.mono,
+.barras__valor,
+.eje-texto {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+  border-radius: var(--radio-s);
+}
+
+::selection {
+  background: var(--acento-suave);
+}
+
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tenue {
+  color: var(--tinta-3);
+}
+.texto-pequeno {
+  font-size: var(--t-sm);
+}
+.texto-acento {
+  color: var(--acento);
+}
+.texto-exito {
+  color: var(--exito);
+}
+.negrita {
+  font-weight: 600;
+}
+.recortar {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* ---------- Estructura ---------- */
+.aplicacion {
+  display: grid;
+  grid-template-columns: var(--ancho-lateral) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.lateral {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-6);
+  padding: var(--e-6) var(--e-4) var(--e-5);
+  border-right: 1px solid var(--linea);
+}
+
+.lateral__marca {
+  padding: 0 var(--e-3);
+}
+
+.lateral__titulo {
+  font-family: var(--fuente-titulo);
+  font-size: var(--t-lg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.lateral__titulo em {
+  font-style: italic;
+  color: var(--acento);
+}
+.lateral__sub {
+  margin-top: var(--e-2);
+  font-size: var(--t-xs);
+  color: var(--tinta-3);
+  line-height: 1.4;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav__enlace {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--e-3);
+  padding: var(--e-2) var(--e-3);
+  border-radius: var(--radio);
+  color: var(--tinta-2);
+  text-decoration: none;
+  transition: color var(--dur-rapida) var(--curva-salida);
+}
+.nav__enlace:hover {
+  color: var(--tinta);
+}
+.nav__enlace.es-activo {
+  color: var(--tinta);
+}
+.nav__indicador {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radio);
+  background: var(--superficie-2);
+  z-index: -1;
+}
+.nav__marca {
+  font-family: var(--fuente-mono);
+  font-size: var(--t-2xs);
+  color: var(--tinta-3);
+  min-width: 1.6rem;
+}
+.nav__enlace.es-activo .nav__marca {
+  color: var(--acento);
+}
+.nav__textos {
+  display: flex;
+  flex-direction: column;
+}
+.nav__nombre {
+  font-weight: 500;
+  font-size: var(--t-sm);
+}
+.nav__detalle {
+  font-size: var(--t-xs);
+  color: var(--tinta-3);
+}
+
+.lateral__pie {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-2);
+  padding: 0 var(--e-2) 0 var(--e-3);
+}
+
+.etiqueta-fuente {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  font-size: var(--t-xs);
+  color: var(--tinta-3);
+}
+.etiqueta-fuente .punto {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--exito);
+}
+.etiqueta-fuente.es-mock .punto {
+  background: var(--acento);
+}
+
+.barra-movil {
+  display: none;
+}
+
+.principal {
+  min-width: 0;
+  padding: var(--e-7) var(--e-7) var(--e-8);
+}
+.principal > div {
+  max-width: var(--ancho-contenido);
+  margin: 0 auto;
+}
+
+.vista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-5);
+}
+/* Pila vertical para agrupar bloques dentro de una vista */
+.pila {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-5);
+  min-width: 0;
+}
+
+.es-recargando {
+  opacity: 0.55;
+  transition: opacity var(--dur) var(--curva-salida);
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 960px) {
+  .aplicacion {
+    grid-template-columns: minmax(0, 1fr);
+    /* La barra no debe estirarse cuando el contenido es corto (p. ej. un mensaje de error). */
+    grid-template-rows: auto 1fr;
+  }
+  .lateral {
+    display: none;
+  }
+  .barra-movil {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--e-2) var(--e-4);
+    background: var(--papel);
+    border-bottom: 1px solid var(--linea);
+  }
+  .barra-movil__acciones {
+    display: flex;
+    gap: var(--e-1);
+  }
+  .menu-movil {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: var(--e-3) var(--e-4) var(--e-4);
+    background: var(--papel);
+    border-bottom: 1px solid var(--linea);
+    box-shadow: var(--sombra);
+  }
+  .menu-movil__nota {
+    padding: var(--e-3) var(--e-3) 0;
+    font-size: var(--t-xs);
+  }
+  .principal {
+    padding: var(--e-5) var(--e-4) var(--e-7);
+  }
+}
+
+/* Movimiento reducido: se eliminan transiciones y animaciones CSS */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

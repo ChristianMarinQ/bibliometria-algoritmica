@@ -1,0 +1,82 @@
+/* Tokens de diseño: tipografía, espaciado, color y movimiento.
+   Paleta casi monocroma (fondo blanco + tinta) con un único acento óxido. */
+
+:root {
+  /* Tipografía */
+  --fuente-titulo: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --fuente-texto: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fuente-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --t-2xs: 0.6875rem; /* 11 */
+  --t-xs: 0.8125rem; /* 13 */
+  --t-sm: 0.875rem; /* 14 */
+  --t-base: 1rem; /* 16 */
+  --t-md: 1.0625rem; /* 17 */
+  --t-lg: 1.3125rem; /* 21 */
+  --t-xl: 1.75rem; /* 28 */
+  --t-2xl: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+
+  /* Espaciado (múltiplos de 4) */
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 24px;
+  --e-6: 32px;
+  --e-7: 48px;
+  --e-8: 64px;
+
+  --radio-s: 4px;
+  --radio: 6px;
+  --radio-l: 10px;
+
+  --ancho-contenido: 1280px;
+  --ancho-lateral: 248px;
+
+  /* Movimiento */
+  --curva-salida: cubic-bezier(0.23, 1, 0.32, 1);
+  --curva-entrada-salida: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-rapida: 150ms;
+  --dur: 220ms;
+  --dur-lenta: 300ms;
+
+  /* Color — modo claro */
+  color-scheme: light;
+  --papel: #ffffff;
+  --superficie: #ffffff;
+  --superficie-2: #f4f4f2;
+  --tinta: #1a1917;
+  --tinta-2: #47453f;
+  --tinta-3: #6b6860;
+  --linea: #e6e5e1;
+  --linea-fuerte: #cbc6ba;
+  --acento: #b0421a;
+  --acento-tinta: #ffffff;
+  --acento-suave: color-mix(in oklab, var(--acento) 11%, transparent);
+  --exito: #2f6b45;
+  --exito-suave: color-mix(in oklab, var(--exito) 14%, transparent);
+  --foco: color-mix(in oklab, var(--acento) 55%, transparent);
+  /* Texto del mapa de calor: medio = similitud en (0.75, 0.85], alto = > 0.85 (contraste ≈ 4:1 o más) */
+  --calor-texto-medio: var(--tinta);
+  --calor-texto-alto: #ffffff;
+  --sombra: 0 1px 2px rgb(26 25 23 / 0.05), 0 4px 16px rgb(26 25 23 / 0.06);
+}
+
+/* Modo oscuro forzado con el interruptor */
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --papel: #131311;
+  --superficie: #1a1a17;
+  --superficie-2: #23221f;
+  --tinta: #ecebe5;
+  --tinta-2: #bcb9b0;
+  --tinta-3: #918e85;
+  --linea: #2b2a26;
+  --linea-fuerte: #3d3c37;
+  --acento: #e57a4c;
+  --acento-tinta: #1a0d07;
+  --exito: #79b88d;
+  --calor-texto-medio: var(--acento-tinta);
+  --calor-texto-alto: var(--acento-tinta);
+  --sombra: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+}
