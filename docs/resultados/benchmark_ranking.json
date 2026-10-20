@@ -1,0 +1,50 @@
+{
+  "n": 959,
+  "repeticiones": 50,
+  "algoritmos": [
+    {
+      "clave": "counting_sort",
+      "promedio_ms": 0.517749993596226,
+      "minimo_ms": 0.4389999667182565,
+      "maximo_ms": 1.2063999893143773
+    },
+    {
+      "clave": "radix_sort",
+      "promedio_ms": 1.0411060065962374,
+      "minimo_ms": 0.9986000368371606,
+      "maximo_ms": 1.5570999821648002
+    },
+    {
+      "clave": "bucket_sort",
+      "promedio_ms": 0.8708719909191132,
+      "minimo_ms": 0.7229000329971313,
+      "maximo_ms": 1.2647999683395028
+    }
+  ],
+  "escalamiento": [
+    {
+      "n": 959,
+      "counting_sort": 0.5327020003460348,
+      "radix_sort": 1.168086000252515,
+      "bucket_sort": 0.6064900010824203
+    },
+    {
+      "n": 1918,
+      "counting_sort": 0.7142499997280538,
+      "radix_sort": 1.6924099996685982,
+      "bucket_sort": 1.2839799979701638
+    },
+    {
+      "n": 3836,
+      "counting_sort": 1.551968001294881,
+      "radix_sort": 3.534035999327898,
+      "bucket_sort": 2.4059120006859303
+    },
+    {
+      "n": 7672,
+      "counting_sort": 2.916857998352498,
+      "radix_sort": 7.616929998621345,
+      "bucket_sort": 5.692629998084158
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "total_tokens": 2314,
+  "terminos_distintos": 959,
+  "frecuencia_maxima": 57,
+  "algoritmos": [
+    {
+      "clave": "counting_sort",
+      "nombre": "Counting Sort",
+      "tiempo_ms": 0.5609149986412376,
+      "complejidad": "O(n + k)",
+      "top": [
+        {
+          "termino": "education",
+          "frecuencia": 57
+        },
+        {
+          "termino": "research",
+          "frecuencia": 46
+        },
+        {
+          "termino": "learning",
+          "frecuencia": 40
+        },
+        {
+          "termino": "aied",
+          "frecuencia": 38
+        },
+        {
+          "termino": "review",
+          "frecuencia": 36
+        },
+        {
+          "termino": "educational",
+          "frecuencia": 33
+        },
+        {
+          "termino": "assessment",
+          "frecuencia": 32
+        },
+        {
+          "termino": "intelligence",
+          "frecuencia": 23
+        },
+        {
+          "termino": "artificial",
+          "frecuencia": 22
+        },
+        {
+          "termino": "studies",
+          "frecuencia": 21
+        },
+        {
+          "termino": "higher",
+          "frecuencia": 16
+        },
+        {
+          "termino": "literature",
+          "frecuencia": 15
+        },
+        {
+          "termino": "study",
+          "frecuencia": 15
+        },
+        {
+          "termino": "systematic",
+          "frecuencia": 15
+        },
+        {
+          "termino": "technologies",
+          "frecuencia": 15
+        }
+      ]
+    },
+    {
+      "clave": "radix_sort",
+      "nombre": "Radix Sort",
+      "tiempo_ms": 1.238760002888739,
+      "complejidad": "O(d·(n + b))",
+      "top": [
+        {
+          "termino": "education",
+          "frecuencia": 57
+        },
+        {
+          "termino": "research",
+          "frecuencia": 46
+        },
+        {
+          "termino": "learning",
+          "frecuencia": 40
+        },
+        {
+          "termino": "aied",
+          "frecuencia": 38
+        },
+        {
+          "termino": "review",
+          "frecuencia": 36
+        },
+        {
+          "termino": "educational",
+          "frecuencia": 33
+        },
+        {
+          "termino": "assessment",
+          "frecuencia": 32
+        },
+        {
+          "termino": "intelligence",
+          "frecuencia": 23
+        },
+        {
+          "termino": "artificial",
+          "frecuencia": 22
+        },
+        {
+          "termino": "studies",
+          "frecuencia": 21
+        },
+        {
+          "termino": "higher",
+          "frecuencia": 16
+        },
+        {
+          "termino": "literature",
+          "frecuencia": 15
+        },
+        {
+          "termino": "study",
+          "frecuencia": 15
+        },
+        {
+          "termino": "systematic",
+          "frecuencia": 15
+        },
+        {
+          "termino": "technologies",
+          "frecuencia": 15
+        }
+      ]
+    },
+    {
+      "clave": "bucket_sort",
+      "nombre": "Bucket Sort",
+      "tiempo_ms": 0.8677999954670668,
+      "complejidad": "O(n) promedio",
+      "top": [
+        {
+          "termino": "education",
+          "frecuencia": 57
+        },
+        {
+          "termino": "research",
+          "frecuencia": 46
+        },
+        {
+          "termino": "learning",
+          "frecuencia": 40
+        },
+        {
+          "termino": "aied",
+          "frecuencia": 38
+        },
+        {
+          "termino": "review",
+          "frecuencia": 36
+        },
+        {
+          "termino": "educational",
+          "frecuencia": 33
+        },
+        {
+          "termino": "assessment",
+          "frecuencia": 32
+        },
+        {
+          "termino": "intelligence",
+          "frecuencia": 23
+        },
+        {
+          "termino": "artificial",
+          "frecuencia": 22
+        },
+        {
+          "termino": "studies",
+          "frecuencia": 21
+        },
+        {
+          "termino": "higher",
+          "frecuencia": 16
+        },
+        {
+          "termino": "literature",
+          "frecuencia": 15
+        },
+        {
+          "termino": "study",
+          "frecuencia": 15
+        },
+        {
+          "termino": "systematic",
+          "frecuencia": 15
+        },
+        {
+          "termino": "technologies",
+          "frecuencia": 15
+        }
+      ]
+    }
+  ],
+  "coinciden": true
+}
