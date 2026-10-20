@@ -1,0 +1,4 @@
+# Solo para generar los embeddings en local (scripts/generar_embeddings.py).
+# El servidor desplegado lee data/embeddings.json y no necesita estas librerías.
+gensim==4.4.0
+sentence-transformers==5.4.0

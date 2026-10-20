@@ -1,0 +1,15 @@
+# Dependencias y compilados
+node_modules/
+frontend/dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.tsbuildinfo
+
+# Entorno local
+.env
+.env.local
+.claude/
+
+# PDFs originales del corpus (con derechos de autor; la app solo usa data/corpus.json)
+data/articulos/
