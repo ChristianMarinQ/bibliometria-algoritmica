@@ -1,6 +1,8 @@
 """Counting Sort estable y descendente para pares (termino, frecuencia).
 
 No compara elementos entre sí: usa la frecuencia como índice de un arreglo de conteo.
+Basado en https://www.geeksforgeeks.org/dsa/counting-sort/ (conteo, suma de prefijos
+y recorrido inverso), adaptado a pares y a orden descendente.
 """
 
 

@@ -6,7 +6,7 @@
     {
       "clave": "counting_sort",
       "nombre": "Counting Sort",
-      "tiempo_ms": 0.5609149986412376,
+      "tiempo_ms": 0.5565300001762807,
       "complejidad": "O(n + k)",
       "top": [
         {
@@ -74,7 +74,7 @@
     {
       "clave": "radix_sort",
       "nombre": "Radix Sort",
-      "tiempo_ms": 1.238760002888739,
+      "tiempo_ms": 1.689279999845894,
       "complejidad": "O(d·(n + b))",
       "top": [
         {
@@ -142,7 +142,7 @@
     {
       "clave": "bucket_sort",
       "nombre": "Bucket Sort",
-      "tiempo_ms": 0.8677999954670668,
+      "tiempo_ms": 1.320145000499906,
       "complejidad": "O(n) promedio",
       "top": [
         {

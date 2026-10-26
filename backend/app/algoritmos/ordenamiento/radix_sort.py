@@ -1,6 +1,8 @@
 """Radix Sort LSD en base 10 para pares (termino, frecuencia), descendente y estable.
 
 Ordena dígito por dígito (unidades, decenas, ...) con un Counting Sort estable.
+Basado en https://www.geeksforgeeks.org/dsa/radix-sort/ (LSD con un Counting Sort
+por dígito), adaptado a pares y a orden descendente.
 """
 
 from app.algoritmos.ordenamiento.counting_sort import ordenar_por_clave_descendente

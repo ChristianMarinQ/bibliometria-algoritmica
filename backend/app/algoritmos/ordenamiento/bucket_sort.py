@@ -2,6 +2,8 @@
 
 Distribuye los pares en m = n cubetas según su frecuencia y concatena las
 cubetas de mayor a menor; dentro de cada cubeta se ordena por inserción estable.
+Basado en https://www.geeksforgeeks.org/dsa/bucket-sort-2/ (n cubetas e inserción
+dentro de cada una), adaptado a frecuencias enteras y a orden descendente.
 """
 
 
