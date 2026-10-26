@@ -37,6 +37,10 @@ LIGADURAS = {
 
 LONGITUD_MINIMA = 3
 
+# Siglas cortas con significado propio que se conservan aunque tengan menos
+# de LONGITUD_MINIMA letras ("AI" es el tema central del corpus).
+SIGLAS_CONSERVADAS = {"ai"}
+
 
 def normalizar(texto):
     """Reemplaza ligaduras y comillas tipográficas y pasa a minúsculas."""
@@ -68,10 +72,12 @@ def tokenizar(texto):
 
 
 def limpiar_tokens(tokens):
-    """Elimina palabras vacías y palabras muy cortas."""
+    """Elimina palabras vacías y palabras muy cortas, salvo las siglas conservadas."""
     limpios = []
     for token in tokens:
-        if len(token) >= LONGITUD_MINIMA and token not in STOPWORDS:
+        if token in SIGLAS_CONSERVADAS:
+            limpios.append(token)
+        elif len(token) >= LONGITUD_MINIMA and token not in STOPWORDS:
             limpios.append(token)
     return limpios
 

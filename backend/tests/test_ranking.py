@@ -136,3 +136,10 @@ def test_escalamiento_limita_repeticiones(monkeypatch):
     # 200 mediciones individuales por algoritmo + 4 factores × 3 algoritmos con tope
     assert llamadas.count(ranking.MAXIMO_REPETICIONES_ESCALAMIENTO) == 12
     assert max(llamadas) == ranking.MAXIMO_REPETICIONES_ESCALAMIENTO
+
+
+def test_preprocesamiento_conserva_la_sigla_ai():
+    """La sigla "AI" se conserva aunque tenga menos de tres letras; las palabras cortas comunes no."""
+    from app.nucleo.preprocesamiento import preprocesar
+    assert preprocesar("AI in education is a key topic of AI research") == [
+        "ai", "education", "key", "topic", "ai", "research"]

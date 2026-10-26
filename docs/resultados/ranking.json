@@ -1,14 +1,18 @@
 {
-  "total_tokens": 2314,
-  "terminos_distintos": 959,
-  "frecuencia_maxima": 57,
+  "total_tokens": 2400,
+  "terminos_distintos": 960,
+  "frecuencia_maxima": 86,
   "algoritmos": [
     {
       "clave": "counting_sort",
       "nombre": "Counting Sort",
-      "tiempo_ms": 0.5565300001762807,
+      "tiempo_ms": 0.44645000000400614,
       "complejidad": "O(n + k)",
       "top": [
+        {
+          "termino": "ai",
+          "frecuencia": 86
+        },
         {
           "termino": "education",
           "frecuencia": 57
@@ -63,10 +67,6 @@
         },
         {
           "termino": "systematic",
-          "frecuencia": 15
-        },
-        {
-          "termino": "technologies",
           "frecuencia": 15
         }
       ]
@@ -74,9 +74,13 @@
     {
       "clave": "radix_sort",
       "nombre": "Radix Sort",
-      "tiempo_ms": 1.689279999845894,
+      "tiempo_ms": 1.0148499999786509,
       "complejidad": "O(d·(n + b))",
       "top": [
+        {
+          "termino": "ai",
+          "frecuencia": 86
+        },
         {
           "termino": "education",
           "frecuencia": 57
@@ -131,10 +135,6 @@
         },
         {
           "termino": "systematic",
-          "frecuencia": 15
-        },
-        {
-          "termino": "technologies",
           "frecuencia": 15
         }
       ]
@@ -142,9 +142,13 @@
     {
       "clave": "bucket_sort",
       "nombre": "Bucket Sort",
-      "tiempo_ms": 1.320145000499906,
+      "tiempo_ms": 0.7586899999978414,
       "complejidad": "O(n) promedio",
       "top": [
+        {
+          "termino": "ai",
+          "frecuencia": 86
+        },
         {
           "termino": "education",
           "frecuencia": 57
@@ -199,10 +203,6 @@
         },
         {
           "termino": "systematic",
-          "frecuencia": 15
-        },
-        {
-          "termino": "technologies",
           "frecuencia": 15
         }
       ]
