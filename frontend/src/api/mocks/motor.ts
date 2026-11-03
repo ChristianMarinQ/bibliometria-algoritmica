@@ -785,7 +785,7 @@ function bucketSort(l: TerminoFrecuencia[]) {
 const ORDENADORES: Record<ClaveOrden, [string, string, (l: TerminoFrecuencia[]) => TerminoFrecuencia[]]> = {
   counting_sort: ["Counting Sort", "O(n + k)", countingSort],
   radix_sort: ["Radix Sort (LSD)", "O(d · (n + b))", radixSort],
-  bucket_sort: ["Bucket Sort", "O(n + k) promedio", bucketSort],
+  bucket_sort: ["Bucket Sort", "O(n) si rango ≤ n", bucketSort],
 };
 
 export function ranking(top = 15): RespuestaRanking {

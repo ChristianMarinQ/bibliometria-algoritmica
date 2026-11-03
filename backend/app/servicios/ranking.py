@@ -15,7 +15,7 @@ from app.nucleo.preprocesamiento import frecuencias, preprocesar
 ALGORITMOS = [
     ("counting_sort", "Counting Sort", "O(n + k)", counting_sort),
     ("radix_sort", "Radix Sort", "O(d·(n + b))", radix_sort),
-    ("bucket_sort", "Bucket Sort", "O(n) promedio", bucket_sort),
+    ("bucket_sort", "Bucket Sort", "O(n) si rango ≤ n", bucket_sort),
 ]
 
 REPETICIONES_RANKING = 20

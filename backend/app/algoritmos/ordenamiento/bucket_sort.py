@@ -24,13 +24,13 @@ def _insertar_estable(cubeta, par):
 def bucket_sort(pares):
     """Ordena pares (termino, frecuencia) por frecuencia descendente, de forma estable.
 
-    Usa m = n cubetas con índice ⌊(f − min)·m / (max − min + 1)⌋. Si los valores
-    están repartidos de forma aproximadamente uniforme cada cubeta recibe O(1)
-    elementos en promedio y la inserción interna cuesta O(1) por elemento.
-    Cuando m >= max − min + 1 (lo usual en el corpus: n ≈ 1000 términos y
-    frecuencias de 1 a ~100) cada cubeta contiene una sola frecuencia, la
-    inserción nunca desplaza nada y el método se comporta como Counting Sort.
-    Complejidad: O(n) en promedio, O(n²) en el peor caso.
+    Usa m = n cubetas con índice ⌊(f − min)·m / (max − min + 1)⌋.
+    Si el rango max − min + 1 es menor o igual que n (en el corpus: 86 y 960),
+    dos frecuencias distintas nunca comparten cubeta, la inserción nunca
+    desplaza nada y el método se comporta como Counting Sort, para cualquier
+    orden de entrada. Si el rango es mayor, varias frecuencias pueden caer en
+    la misma cubeta y la inserción puede desplazar elementos.
+    Complejidad: O(n) si rango <= n; O(n²) en el peor caso si rango > n.
     """
     n = len(pares)
     if n == 0:
