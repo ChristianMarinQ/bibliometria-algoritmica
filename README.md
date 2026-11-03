@@ -46,3 +46,10 @@ python backend/scripts/generar_embeddings.py
 
 El `Dockerfile` compila el frontend y lo sirve junto con la API en un solo servicio.
 En Render: New → Blueprint → seleccionar este repositorio (usa `render.yaml`).
+
+
+## Integrantes
+
+Christian Marin 
+Daniel Arias
+Juanita Camargo 
