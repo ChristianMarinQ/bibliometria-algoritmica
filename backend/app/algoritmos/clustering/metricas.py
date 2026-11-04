@@ -38,10 +38,26 @@ def cortar_arbol(fusiones, n, k):
 
 
 def silhouette(distancias, etiquetas):
-    """Coeficiente Silhouette promedio: s(i) = (b(i) − a(i)) / max(a(i), b(i)).
+    """Coeficiente Silhouette promedio, medida de cohesión y separación de grupos.
 
-    a(i) = distancia media de i a los de su grupo; b(i) = menor distancia media
-    de i a otro grupo. Los elementos en grupos unitarios valen 0. Rango [−1, 1].
+    Para cada elemento i se calculan dos valores:
+      a(i) = distancia media de i a todos los demás elementos de su mismo grupo
+             (cohesión interna: cuanto más pequeño, mejor integrado está i).
+      b(i) = distancia media más pequeña de i a los elementos de cualquier otro
+             grupo (separación: cuanto más grande, más alejado está del grupo vecino).
+
+    Con a(i) y b(i) se obtiene el coeficiente individual:
+      s(i) = (b(i) − a(i)) / max(a(i), b(i))
+
+    Rango: s(i) ∈ [−1, 1].
+      s(i) ≈  1  → i está bien asignado (lejos de los vecinos, cerca de los suyos).
+      s(i) ≈  0  → i está en la frontera entre dos grupos.
+      s(i) ≈ −1  → i probablemente debería pertenecer a otro grupo.
+
+    Por convención, los elementos que están solos en su grupo tienen s(i) = 0
+    porque a(i) no está definido.
+
+    El coeficiente Silhouette global es el promedio de todos los s(i).
     Complejidad: O(n²)
     """
     n = len(etiquetas)
@@ -55,13 +71,15 @@ def silhouette(distancias, etiquetas):
     for i in range(n):
         propio = etiquetas[i]
         if len(grupos[propio]) == 1:
-            continue  # s(i) = 0 por convención
+            continue  # s(i) = 0 por convención (a(i) indefinido en grupos unitarios)
         # Sumar distancias de i hacia cada grupo.
         sumas = {}
         for j in range(n):
             if j != i:
                 sumas[etiquetas[j]] = sumas.get(etiquetas[j], 0.0) + distancias[i][j]
+        # a(i): distancia media dentro del grupo propio (n_propio − 1 elementos).
         a = sumas.get(propio, 0.0) / (len(grupos[propio]) - 1)
+        # b(i): la menor distancia media a cualquier grupo ajeno.
         b = None
         for etiqueta in grupos:
             if etiqueta == propio:
@@ -122,7 +140,18 @@ def correlacion_pearson(x, y):
 
 
 def correlacion_cofenetica(distancias, fusiones):
-    """Correlación de Pearson entre las distancias originales y las cofenéticas.
+    """Correlación cofenética: qué tan fielmente el dendrograma preserva las distancias originales.
+
+    La correlación cofenética es el coeficiente de Pearson entre dos vectores
+    de longitud C(n,2) = n(n−1)/2 (todos los pares i < j):
+      - distancias originales d(i, j): las distancias de la matriz de entrada.
+      - distancias cofenéticas c(i, j): la altura (distancia de fusión) a la
+        que i y j se unen por primera vez en el dendrograma.
+
+    Un valor cercano a 1 indica que el dendrograma representa fielmente la
+    estructura de distancias del corpus. Se recomienda un valor > 0.75.
+    Un valor bajo sugiere que el criterio de enlace elegido distorsiona
+    bastante la geometría real de los datos.
 
     Mide qué tan fielmente el dendrograma preserva las distancias reales
     (solo se usan los pares i < j). Rango [−1, 1]; más alto es mejor.

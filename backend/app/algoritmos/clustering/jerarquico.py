@@ -50,20 +50,28 @@ def agrupar(distancias, metodo):
     n = len(distancias)
     if n == 0:
         return []
+    # Se reservan 2n−1 nodos: los n originales (hojas) más los n−1 nodos internos
+    # que se crean al fusionar. Cada fusión consume dos nodos y produce uno nuevo.
     total_nodos = 2 * n - 1
 
-    # Matriz de trabajo de (2n−1)×(2n−1): las filas nuevas se llenan al fusionar.
+    # Matriz de trabajo de (2n−1)×(2n−1): las primeras n filas/columnas
+    # contienen las distancias originales; el resto se llena a medida que se fusiona.
     matriz = [[0.0] * total_nodos for _ in range(total_nodos)]
     for i in range(n):
         for j in range(n):
             matriz[i][j] = float(distancias[i][j])
 
+    # tamanos[k] = número de hojas del grupo k (1 para hojas, se acumula al fusionar).
     tamanos = [1] * n + [0] * (n - 1)
+    # activos = conjunto de nodos que todavía no han sido absorbidos en otro grupo.
     activos = list(range(n))
     fusiones = []
 
     for paso in range(1, n):
-        # 1. Encontrar el par de grupos activos con menor distancia.
+        # --- Paso 1: buscar el par activo con menor distancia ---
+        # Recorre todos los pares (i, j) con i < j entre los nodos aún activos.
+        # En caso de empate de distancia se elige el par con ids menores (orden
+        # de inserción), lo que garantiza determinismo en el resultado.
         mejor_a = -1
         mejor_b = -1
         mejor_distancia = None
@@ -75,7 +83,8 @@ def agrupar(distancias, metodo):
                     mejor_distancia = matriz[i][j]
                     mejor_a, mejor_b = i, j
 
-        # 2. Crear el nuevo nodo y registrar la fusión.
+        # --- Paso 2: crear el nuevo nodo que representa la fusión ---
+        # Los nodos internos se numeran n, n+1, …, 2n−2 en orden de creación.
         nuevo = n + paso - 1
         tamanos[nuevo] = tamanos[mejor_a] + tamanos[mejor_b]
         fusiones.append({
@@ -87,21 +96,31 @@ def agrupar(distancias, metodo):
             "tamano": tamanos[nuevo],
         })
 
-        # 3. Actualizar distancias del nuevo grupo con la regla de Lance-Williams.
+        # --- Paso 3: actualizar distancias usando la fórmula de Lance-Williams ---
+        # d(k, nuevo) = α_a·d(k,a) + α_b·d(k,b) + β·d(a,b) + γ·|d(k,a)−d(k,b)|
+        # Los coeficientes (α_a, α_b, β, γ) determinan el criterio de enlace:
+        #   single:   γ = −1/2 → toma el mínimo de d(k,a) y d(k,b).
+        #   complete: γ = +1/2 → toma el máximo.
+        #   average:  β = γ = 0, α proporcional al tamaño → promedio ponderado.
         alfa_a, alfa_b, beta, gamma = coeficientes_lance_williams(
             metodo, tamanos[mejor_a], tamanos[mejor_b])
         restantes = []
         for k in activos:
             if k == mejor_a or k == mejor_b:
+                # Los nodos fusionados ya no son activos; no se recalcula su distancia.
                 continue
             d_ka = matriz[k][mejor_a]
             d_kb = matriz[k][mejor_b]
+            # El valor absoluto |d(k,a) − d(k,b)| se calcula con comparación directa
+            # para evitar la dependencia de math.fabs (solo estructuras básicas).
             diferencia = d_ka - d_kb if d_ka >= d_kb else d_kb - d_ka
             valor = alfa_a * d_ka + alfa_b * d_kb + beta * mejor_distancia + gamma * diferencia
+            # La matriz es simétrica: se actualiza la celda y su transpuesta.
             matriz[k][nuevo] = valor
             matriz[nuevo][k] = valor
             restantes.append(k)
         restantes.append(nuevo)
+        # Reemplazar la lista de activos: los fusionados salen, el nuevo entra.
         activos = restantes
 
     return fusiones
