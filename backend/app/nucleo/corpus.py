@@ -73,3 +73,70 @@ def obtener_articulos(ids):
             raise KeyError(f"No existe el artículo con id {id_articulo}")
         resultado.append(articulo)
     return resultado
+
+
+def estadisticas_corpus(articulos):
+    """Resumen estadístico básico de una lista de artículos del corpus.
+
+    Calcula sobre los abstracts de los artículos recibidos:
+    - total              : número de artículos.
+    - tokens_promedio    : promedio de tokens preprocesados por abstract.
+    - tokens_min         : longitud mínima (en tokens preprocesados).
+    - tokens_max         : longitud máxima (en tokens preprocesados).
+    - vocabulario_total  : número de términos distintos en todo el corpus.
+
+    Usa solo estructuras básicas (listas, diccionarios, bucles) conforme a las
+    convenciones del proyecto. No hace llamadas de red ni accede a archivos.
+
+    Complejidad: O(T), con T el total de tokens del corpus.
+
+    Parámetros
+    ----------
+    articulos : list[dict]
+        Lista de artículos tal como los devuelve `cargar_corpus()`.
+
+    Devuelve
+    --------
+    dict con claves: total, tokens_promedio, tokens_min, tokens_max,
+    vocabulario_total. Cuando la lista está vacía, todos los valores son 0.
+    """
+    # Importación local para evitar ciclos de importación; preprocesamiento
+    # no depende de corpus, pero corpus sí puede necesitar preprocesar aquí.
+    from app.nucleo.preprocesamiento import preprocesar
+
+    total = len(articulos)
+    if total == 0:
+        return {
+            "total": 0,
+            "tokens_promedio": 0,
+            "tokens_min": 0,
+            "tokens_max": 0,
+            "vocabulario_total": 0,
+        }
+
+    vocabulario = set()
+    longitudes = []
+
+    for articulo in articulos:
+        tokens = preprocesar(articulo.get("abstract", ""))
+        longitudes.append(len(tokens))
+        for token in tokens:
+            vocabulario.add(token)
+
+    suma = 0
+    minimo = longitudes[0]
+    maximo = longitudes[0]
+    for longitud in longitudes:
+        suma += longitud
+        if longitud < minimo:
+            minimo = longitud
+        if longitud > maximo:
+            maximo = longitud
+
+    return {
+        "total": total,
+        "tokens_promedio": round(suma / total, 2),
+        "tokens_min": minimo,
+        "tokens_max": maximo,
+        "vocabulario_total": len(vocabulario),
+    }
